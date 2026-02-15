@@ -9,6 +9,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { NewChatButton } from "@/components/chat/NewChatButton";
+import { Suspense } from "react";
 
 export default async function Page() {
   const headersList = await headers();
@@ -59,7 +60,9 @@ export default async function Page() {
             )}
           </div>
         </PanelHeader>
-        <ChatConversation />
+        <Suspense fallback={<div className="flex-1 flex items-center justify-center">Loading...</div>}>
+          <ChatConversation />
+        </Suspense>
       </Panel>
     </>
   );
