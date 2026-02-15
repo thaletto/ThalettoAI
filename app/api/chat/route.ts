@@ -1,81 +1,27 @@
-import {
-  type UIMessage,
-  convertToModelMessages,
-  createUIMessageStream,
-  createUIMessageStreamResponse,
-  stepCountIs,
-  streamText,
-} from "ai";
+import { streamText, UIMessage, convertToModelMessages } from "ai";
 import { DEFAULT_MODEL } from "@/ai/constants";
 import { NextResponse } from "next/server";
-import { getAvailableModels, getModelOptions } from "@/ai/gateway";
+import { getModelOptions } from "@/ai/gateway";
 import { checkBotId } from "botid/server";
-import prompt from "@/ai/prompt.md";
-import { openai } from "@ai-sdk/openai";
-import { google } from "@ai-sdk/google";
-
-interface BodyData {
-  messages: UIMessage[];
-  modelId?: string;
-}
+import { SYSTEM_PROMPT } from "@/ai/prompt";
 
 export async function POST(req: Request) {
-  const checkResult = await checkBotId();
-  if (checkResult.isBot) {
-    return NextResponse.json({ error: `Bot detected` }, { status: 403 });
-  }
+    const checkResult = await checkBotId();
+    if (checkResult.isBot) {
+        return NextResponse.json({ error: `Bot detected` }, { status: 403 });
+    }
 
-  const [models, { messages, modelId = DEFAULT_MODEL }] = await Promise.all([
-    getAvailableModels(),
-    req.json() as Promise<BodyData>,
-  ]);
+    const {
+        messages,
+        modelId = DEFAULT_MODEL,
+    }: { messages: UIMessage[]; modelId?: string } = await req.json();
+    const { model: languageModel } = getModelOptions(modelId);
 
-  const model = models.find((model) => model.id === modelId);
-  if (!model) {
-    return NextResponse.json(
-      { error: `Model ${modelId} not found.` },
-      { status: 400 }
-    );
-  }
+    const result = streamText({
+        model: languageModel,
+        system: SYSTEM_PROMPT,
+        messages: await convertToModelMessages(messages),
+    });
 
-  return createUIMessageStreamResponse({
-    stream: createUIMessageStream({
-      originalMessages: messages,
-      execute: ({ writer }) => {
-        const { model: languageModel, ...rest } = getModelOptions(modelId);
-
-        const result = streamText({
-          model: languageModel,
-          ...rest.openAIProviderOptions,
-          ...rest.googleProviderOptions,
-          ...rest.anthropicProviderOptions,
-          system: prompt,
-          messages: convertToModelMessages(messages),
-          tools: {
-            // google_search: google.tools.googleSearch({}),
-            web_search: openai.tools.webSearch({
-              searchContextSize: 'medium'
-            }),
-            image_generation: openai.tools.imageGeneration({ outputFormat: 'webp' }),
-          },
-          stopWhen: stepCountIs(20),
-          onError: (error) => {
-            console.error("Error communicating with AI");
-            console.error(JSON.stringify(error, null, 2));
-          },
-        });
-
-        result.consumeStream();
-
-        writer.merge(
-          result.toUIMessageStream({
-            sendStart: false,
-            messageMetadata: () => ({
-              model: model.name,
-            }),
-          })
-        );
-      },
-    }),
-  });
+    return result.toUIMessageStreamResponse();
 }
