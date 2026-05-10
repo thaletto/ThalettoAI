@@ -32,6 +32,7 @@
     "@upstash/redis": "^1.38.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "evlog": "^2.17.0",
     "katex": "^0.16.45",
     "lucide-react": "^1.14.0",
     "react": "^19.2.6",
@@ -55,6 +56,7 @@
     "@vitejs/plugin-react": "^6.0.1",
     "babel-plugin-react-compiler": "^1.0.0",
     "jsdom": "^29.1.1",
+    "nitro": "^3.0.260429-beta",
     "typescript": "^5.9.3",
     "vite": "^8.0.11",
     "vitest": "^4.1.5"

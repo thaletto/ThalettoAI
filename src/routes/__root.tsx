@@ -5,6 +5,8 @@ import { getThemeServerFn } from "../lib/theme";
 import { ThemeProvider } from "../components/theme-provider";
 import Header from "../components/Header";
 import appCss from "../styles.css?url";
+import { createMiddleware } from "@tanstack/react-start";
+import { evlogErrorHandler } from "evlog/nitro/v3";
 
 const THEME_INIT_SCRIPT = `(function(){
   try {
@@ -23,6 +25,9 @@ const THEME_INIT_SCRIPT = `(function(){
 })();`;
 
 export const Route = createRootRoute({
+  server: {
+    middleware: [createMiddleware().server(evlogErrorHandler)],
+  },
   loader: () => getThemeServerFn(),
   head: () => ({
     meta: [

@@ -8,11 +8,16 @@ import {
   type UIMessage,
 } from "ai";
 import { pipeJsonRender } from "@json-render/core";
+import { useRequest } from "nitro/context";
+import type { RequestLogger } from "evlog";
 
 export const Route = createFileRoute("/api/generate")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const req = useRequest();
+        const log = req.context!.log as RequestLogger;
+
         const ip =
           request.headers.get("x-forwarded-for")?.split(",")[0] ?? "anonymous";
 
@@ -21,8 +26,11 @@ export const Route = createFileRoute("/api/generate")({
           dailyRateLimit.limit(ip),
         ]);
 
+        log.set({ ip, minuteResult, dailyResult });
+
         if (!minuteResult.success || !dailyResult.success) {
           const isMinuteLimit = !minuteResult.success;
+          log.set({ status: 429, message: "Rate limit exceeded" });
           return new Response(
             JSON.stringify({
               error: "Rate limit exceeded",
@@ -63,6 +71,10 @@ export const Route = createFileRoute("/api/generate")({
           },
         });
 
+        log.set({
+          message: "message generated",
+        });
+            
         return createUIMessageStreamResponse({ stream });
       },
     },
