@@ -41,6 +41,18 @@ export const Route = createRootRoute({
       {
         title: "Kite | AG-UI Explorer",
       },
+      {
+        property: "og:image",
+        content: "/og.png",
+      },
+      {
+        name: "twitter:card",
+        content: "summary_large_image",
+      },
+      {
+        name: "twitter:image",
+        content: "/og.png",
+      },
     ],
     links: [
       {
