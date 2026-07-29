@@ -42,12 +42,51 @@ export const Route = createRootRoute({
         title: "Kite | AG-UI Explorer",
       },
       {
+        name: "description",
+        content:
+          "Kite is an AI-powered data exploration assistant that turns questions into interactive dashboards.",
+      },
+      {
+        property: "og:title",
+        content: "Kite | AG-UI Explorer",
+      },
+      {
+        property: "og:description",
+        content:
+          "Kite is an AI-powered data exploration assistant that turns questions into interactive dashboards.",
+      },
+      {
+        property: "og:type",
+        content: "website",
+      },
+      {
+        property: "og:url",
+        content: "https://kite.netlify.app/",
+      },
+      {
         property: "og:image",
         content: "/og.png",
       },
       {
+        property: "og:image:width",
+        content: "1200",
+      },
+      {
+        property: "og:image:height",
+        content: "630",
+      },
+      {
         name: "twitter:card",
         content: "summary_large_image",
+      },
+      {
+        name: "twitter:title",
+        content: "Kite | AG-UI Explorer",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "Kite is an AI-powered data exploration assistant that turns questions into interactive dashboards.",
       },
       {
         name: "twitter:image",
